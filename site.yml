@@ -1,0 +1,59 @@
+---
+
+- hosts: all
+  become: true
+  tasks:
+
+  - name: install updates (Redhat/Centos)
+    dnf:
+      update_cache: yes
+    when: ansible_distribution in ["CentOS"]
+
+  - name: install updates (Ubuntu/Debian)
+    apt:
+      update_cache: yes
+    when: ansible_distribution in ["Ubuntu","Debian"]
+
+
+- hosts: web_servers
+  become: true
+  tasks: 
+
+  - name: install apache and php packages
+    apt:
+      name: 
+        - apache2
+        - libapache2-mod-php
+      state: latest
+      update_cache: yes
+    when: ansible_distribution in ["Ubuntu","Debian"]
+
+- hosts: db_servers
+  become: true
+  tasks:
+
+  - name: install mariadb package (CentOS)
+    dnf:
+      name:
+        - mariadb
+      state: latest
+      update_cache: yes
+    when: ansible_distribution in ["CentOS"]
+
+  - name: install mariadb package (Ubuntu/Redhat)
+    apt:
+      name:
+        - mariadb-server
+      state: latest
+      update_cache: yes
+    when: ansible_distribution in ["Ubuntu","Debian"]
+
+
+- hosts: web_servers
+  become: true
+  tasks:
+  
+  - name: install samba package
+    package:
+      name: samba
+      state: latest
